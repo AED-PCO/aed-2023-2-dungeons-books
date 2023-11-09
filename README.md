@@ -18,5 +18,5 @@ Um programa para uma loja de livros, com administração e checagem de estoque, 
 |----|-----------|
 |RF01| Lista duplamente encadeada para cadastro de livros |
 |RF02| Utilizar lista para comprar livros, dando baixa no estoque |
-|RM03| Permitir o usuário a logar na aplicação |
-|RM04| Usar fila para venda dos produtos |
+|RF03| Permitir o usuário a logar na aplicação |
+|RF04| Usar fila para venda dos produtos |
