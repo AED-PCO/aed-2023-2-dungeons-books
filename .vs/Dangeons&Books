@@ -1,0 +1,184 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+class Livro
+{
+    public string Titulo { get; set; }
+    public string Autor { get; set; }
+    public decimal Preco { get; set; }
+}
+
+class Program
+{
+    static List<Livro> livros = new List<Livro>();
+    static Dictionary<string, Livro> tabelaHashLivros = new Dictionary<string, Livro>();
+
+    static void Main()
+    {
+        CarregarDados();
+        CriarTabelaHash();
+        MostrarMenu();
+    }
+
+    static void CriarTabelaHash()
+    {
+        tabelaHashLivros.Clear();
+        foreach (var livro in livros)
+        {
+            tabelaHashLivros[livro.Titulo.ToLower()] = livro;
+        }
+    }
+
+    static void MostrarMenu()
+    {
+        int escolha;
+        do
+        {
+            Console.WriteLine("1. Listar Livros");
+            Console.WriteLine("2. Adicionar Livro");
+            Console.WriteLine("3. Buscar Livro por Título");
+            Console.WriteLine("4. Remover Livro");
+            Console.WriteLine("5. Ordenar Livros por Título");
+            Console.WriteLine("6. Salvar e Sair");
+            Console.Write("Escolha uma opção: ");
+
+            if (int.TryParse(Console.ReadLine(), out escolha))
+            {
+                ExecutarOpcao(escolha);
+            }
+            else
+            {
+                Console.WriteLine("Opção inválida. Tente novamente.");
+            }
+
+        } while (escolha != 6);
+    }
+
+    static void ExecutarOpcao(int opcao)
+    {
+        switch (opcao)
+        {
+            case 1:
+                ListarLivros();
+                break;
+            case 2:
+                AdicionarLivro();
+                break;
+            case 3:
+                BuscarLivroPorTitulo();
+                break;
+            case 4:
+                RemoverLivro();
+                break;
+            case 5:
+                OrdenarLivrosPorTitulo();
+                break;
+            case 6:
+                SalvarDados();
+                break;
+            default:
+                Console.WriteLine("Opção inválida. Tente novamente.");
+                break;
+        }
+    }
+
+    static void ListarLivros()
+    {
+        Console.WriteLine("Lista de Livros:");
+        foreach (var livro in livros)
+        {
+            Console.WriteLine($"Título: {livro.Titulo}, Autor: {livro.Autor}, Preço: {livro.Preco:C}");
+        }
+    }
+
+    static void AdicionarLivro()
+    {
+        Console.Write("Digite o título do livro: ");
+        string titulo = Console.ReadLine();
+        Console.Write("Digite o autor do livro: ");
+        string autor = Console.ReadLine();
+        Console.Write("Digite o preço do livro: ");
+        if (decimal.TryParse(Console.ReadLine(), out decimal preco))
+        {
+            Livro novoLivro = new Livro { Titulo = titulo, Autor = autor, Preco = preco };
+            livros.Add(novoLivro);
+            tabelaHashLivros[titulo.ToLower()] = novoLivro;
+            Console.WriteLine("Livro adicionado com sucesso!");
+        }
+        else
+        {
+            Console.WriteLine("Formato de preço inválido.");
+        }
+    }
+
+    static void BuscarLivroPorTitulo()
+    {
+        Console.Write("Digite o título do livro a ser buscado: ");
+        string tituloBusca = Console.ReadLine().ToLower();
+
+        if (tabelaHashLivros.ContainsKey(tituloBusca))
+        {
+            Livro livroEncontrado = tabelaHashLivros[tituloBusca];
+            Console.WriteLine($"Livro encontrado: Título: {livroEncontrado.Titulo}, Autor: {livroEncontrado.Autor}, Preço: {livroEncontrado.Preco:C}");
+        }
+        else
+        {
+            Console.WriteLine("Livro não encontrado.");
+        }
+    }
+
+    static void RemoverLivro()
+    {
+        Console.Write("Digite o título do livro a ser removido: ");
+        string tituloRemover = Console.ReadLine().ToLower();
+
+        if (tabelaHashLivros.ContainsKey(tituloRemover))
+        {
+            Livro livroRemover = tabelaHashLivros[tituloRemover];
+            livros.Remove(livroRemover);
+            tabelaHashLivros.Remove(tituloRemover);
+            Console.WriteLine("Livro removido com sucesso!");
+        }
+        else
+        {
+            Console.WriteLine("Livro não encontrado para remoção.");
+        }
+    }
+
+    static void OrdenarLivrosPorTitulo()
+    {
+        livros = livros.OrderBy(livro => livro.Titulo).ToList();
+        Console.WriteLine("Livros ordenados por título.");
+    }
+
+    static void CarregarDados()
+    {
+        if (File.Exists("livros.txt"))
+        {
+            using (StreamReader sr = new StreamReader("livros.txt"))
+            {
+                while (!sr.EndOfStream)
+                {
+                    string linha = sr.ReadLine();
+                    string[] dados = linha.Split(';');
+                    Livro livro = new Livro { Titulo = dados[0], Autor = dados[1], Preco = decimal.Parse(dados[2]) };
+                    livros.Add(livro);
+                }
+            }
+        }
+    }
+
+    static void SalvarDados()
+    {
+        using (StreamWriter sw = new StreamWriter("livros.txt"))
+        {
+            foreach (var livro in livros)
+            {
+                sw.WriteLine($"{livro.Titulo};{livro.Autor};{livro.Preco}");
+            }
+        }
+        Console.WriteLine("Dados salvos com sucesso. Saindo do programa.");
+    }
+}
